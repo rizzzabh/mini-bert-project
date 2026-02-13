@@ -25,6 +25,7 @@ class SelfAttention(Layer):
         scores = scores / tf.math.sqrt(dk)
 
         if mask is not None:
+            mask = tf.cast(mask, tf.float32)
             scores += (mask * -1e9)
 
         attention_weights = tf.nn.softmax(scores, axis=-1)
