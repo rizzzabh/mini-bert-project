@@ -34,10 +34,5 @@ class TokenAndPositionEmbedding(Layer):
 
 
 def create_padding_mask(x):
-    """
-    x shape: (batch_size, seq_len)
-    Returns mask shape: (batch_size, 1, seq_len)
-    """
     mask = tf.cast(tf.math.equal(x, 0), tf.float32)
-    
-    return mask[:, tf.newaxis, :]
+    return mask[:, tf.newaxis, tf.newaxis, :]
