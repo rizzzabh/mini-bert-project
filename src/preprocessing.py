@@ -123,7 +123,13 @@ def load_and_prepare_data(data_path, max_len=50):
 
     sentences, labels = parse_conll_file(data_path)
 
-    print("Total sentences:", len(sentences))
+    avg_length = 0 
+    for sentence in sentences : 
+        avg_length = avg_length + (len(sentence))
+
+    avg_length = avg_length // 14987
+    
+    print("Total sentences:", len(sentences) , "Average length" , avg_length)
 
     vocab = build_vocab(sentences)
     label2id, id2label = build_label_dict(labels)
