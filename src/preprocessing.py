@@ -60,14 +60,17 @@ def build_label_dict(labels):
     unique_labels = set()
 
     for sentence_labels in labels:
-        unique_labels.update(sentence_labels)
+        for label in sentence_labels:
+            unique_labels.add(label)
 
-    label2id = {}
-    id2label = {}
+    label2id = {"<PAD>": 0}
+    id2label = {0: "<PAD>"}
 
-    for idx, label in enumerate(sorted(unique_labels)):
+    idx = 1
+    for label in sorted(unique_labels):
         label2id[label] = idx
         id2label[idx] = label
+        idx += 1
 
     return label2id, id2label
 
@@ -119,7 +122,7 @@ def pad_data(X, y, max_len):
 
 
 
-def load_and_prepare_data(data_path, max_len=50):
+def load_and_prepare_data(data_path, max_len=50, vocab=None, label2id=None):
 
     sentences, labels = parse_conll_file(data_path)
 
@@ -127,12 +130,14 @@ def load_and_prepare_data(data_path, max_len=50):
     for sentence in sentences : 
         avg_length = avg_length + (len(sentence))
 
-    avg_length = avg_length // 14987
-    
-    print("Total sentences:", len(sentences) , "Average length" , avg_length)
 
-    vocab = build_vocab(sentences)
-    label2id, id2label = build_label_dict(labels)
+    if vocab is None:
+            vocab = build_vocab(sentences)
+
+    if label2id is None:
+            label2id, id2label = build_label_dict(labels)
+    else:
+            id2label = {idx: label for label, idx in label2id.items()}
 
     X = encode_sentences(sentences, vocab)
     y = encode_labels(labels, label2id)
@@ -141,3 +146,10 @@ def load_and_prepare_data(data_path, max_len=50):
 
     return X_padded, y_padded, vocab, label2id, id2label
 
+
+
+# TRAIN_PATH = "data/raw/train.txt"
+# VALID_PATH = "data/raw/valid.txt"
+
+# if __name__ == "__main__" : 
+#     load_and_prepare_data(TRAIN_PATH , 30)

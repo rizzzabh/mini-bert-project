@@ -36,3 +36,23 @@ class TokenAndPositionEmbedding(Layer):
 def create_padding_mask(x):
     mask = tf.cast(tf.math.equal(x, 0), tf.float32)
     return mask[:, tf.newaxis, tf.newaxis, :]
+
+
+loss_object = tf.keras.losses.SparseCategoricalCrossentropy(
+    from_logits=True,
+    reduction="none"
+)
+
+def masked_loss(y_true, y_pred):
+    """
+    y_true: (batch, seq_len)
+    y_pred: (batch, seq_len, num_labels)
+    """
+
+    loss = loss_object(y_true, y_pred)
+
+    mask = tf.cast(tf.not_equal(y_true, 0), dtype=tf.float32)
+
+    loss *= mask
+
+    return tf.reduce_sum(loss) / tf.reduce_sum(mask)

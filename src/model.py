@@ -59,16 +59,18 @@ class MiniBERT(tf.keras.Model):
 
         self.classifier = tf.keras.layers.Dense(num_labels)
 
-    def call(self, x, mask=None, training=False):
+    def call(self, x, training=False):
 
-        x = self.embedding(x)
+      mask = tf.cast(tf.math.equal(x, 0), tf.float32)
+      mask = mask[:, tf.newaxis, tf.newaxis, :]
 
-        x = self.dropout(x, training=training)
+      x = self.embedding(x)
+      x = self.dropout(x, training=training)
 
-        for encoder in self.encoder_layers:
+      for encoder in self.encoder_layers:
             x = encoder(x, mask=mask, training=training)
 
-        logits = self.classifier(x)
+      logits = self.classifier(x)
 
-        return logits
+      return logits
     

@@ -77,30 +77,32 @@ class MultiHeadAttention(tf.keras.layers.Layer):
         return output, attention_weights
     
 
-
     def call(self, x, mask=None):
 
-        batch_size = tf.shape(x)[0]
+      batch_size = tf.shape(x)[0]
 
-        Q = self.W_q(x)
-        K = self.W_k(x)
-        V = self.W_v(x)
+      Q = self.W_q(x)
+      K = self.W_k(x)
+      V = self.W_v(x)
 
-        Q = self.split_heads(Q, batch_size)
-        K = self.split_heads(K, batch_size)
-        V = self.split_heads(V, batch_size)
+      Q = self.split_heads(Q, batch_size)
+      K = self.split_heads(K, batch_size)
+      V = self.split_heads(V, batch_size)
 
-        attention_output, attention_weights = self.scaled_dot_product_attention(
+      if mask is not None:
+            mask = tf.cast(mask, tf.float32)
+
+      attention_output, attention_weights = self.scaled_dot_product_attention(
             Q, K, V, mask
-        )
+      )
 
-        attention_output = tf.transpose(attention_output, perm=[0, 2, 1, 3])
+      attention_output = tf.transpose(attention_output, perm=[0, 2, 1, 3])
 
-        concat_attention = tf.reshape(
+      concat_attention = tf.reshape(
             attention_output,
             (batch_size, -1, self.embed_dim)
-        )
+      )
 
-        output = self.W_o(concat_attention)
+      output = self.W_o(concat_attention)
 
-        return output, attention_weights
+      return output, attention_weights
